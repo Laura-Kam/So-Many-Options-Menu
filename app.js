@@ -71,12 +71,21 @@ const menu = [
     img: "./images/item-9.jpeg",
     desc: `skateboard fam synth authentic semiotics. Live-edge lyft af, edison bulb yuccie crucifix microdosing.`,
   },
+  {
+    id: 10,
+    title: "steak dinner",
+    category: "dinner",
+    price: 38.99,
+    img: "./images/item-10.jpeg",
+    desc: `juicy steak fam synth authentic semiotics. Live-edge lyft af, edison bulb yuccie crucifix microdosing.`,
+  },
 ];
 
 //When page loads, access array and dynamically populate items.
 
 const sectionCenter = document.querySelector(".section-center");
-const filterBtns = document.querySelectorAll(".filter-btn");
+
+const container = document.querySelector(".btn-container");
 
 //display menu is every item on that particular menu (all ids/objects)
 //each item is targetting every 'id' (object)
@@ -84,36 +93,64 @@ const filterBtns = document.querySelectorAll(".filter-btn");
 
 //load items
 window.addEventListener("DOMContentLoaded", function () {
+  //This is displaying the actual menu items
   displayMenuItems(menu);
+  //new variable array of all categories from each item.
+  const categories = menu.reduce(
+    function (values, item) {
+      //values is the array with all categories
+      //if it does NOT already include that category then
+      //push it into the vategory array.
+      //The first time it is encountered, only time it is the 'first one'
+      if (!values.includes(item.category)) {
+        values.push(item.category);
+      }
+      return values;
+    },
+    //all is a separate category - it is not a category in the items.
+    ["all"]
+  );
+  const categoryBtns = categories
+    .map(function (category) {
+      return `<button class="filter-btn" type="button" data-id=${category} alt="button">
+    ${category}
+  </button>`;
+    })
+    //This get's rid of the array items separated by commas.
+    .join("");
+  container.innerHTML = categoryBtns;
+  //as they are dynamically added, can't be selected until selected dynamically.
+  //so select them after appeared.
+  const filterBtns = document.querySelectorAll(".filter-btn");
+  console.log(categoryBtns);
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      //this finds its id - e.g 'lunch'/'breakfast'/'dinner'
+      const category = e.currentTarget.dataset.id;
+      console.log(category);
+      //filter through the whole menu - iterate over each one
+      //if the category is the same as the 'current target dataset - e.g breakfast etc
+      //then return that menu item (one/ more meals in category)
+      const menuCategory = menu.filter(function (menuItem) {
+        if (menuItem.category === category) {
+          return menuItem;
+        }
+      });
+
+      //if the category is 'all' then call the function
+      //displayMenuItems again
+      if (category === "all") {
+        displayMenuItems(menu);
+        //if not call same function but pass the categoryMenu instead that
+        //already filtered
+      } else {
+        displayMenuItems(menuCategory);
+      }
+    });
+  });
 });
 
 //filter items.
-
-filterBtns.forEach(function (btn) {
-  btn.addEventListener("click", function (e) {
-    //this finds its id - e.g 'lunch'/'breakfast'/'dinner'
-    const category = e.currentTarget.dataset.id;
-    console.log(category);
-    //filter through the whole menu - iterate over each one
-    //if the category is the same as the 'current target dataset - e.g breakfast etc
-    //then return that menu item (one/ more meals in category)
-    const menuCategory = menu.filter(function (menuItem) {
-      if (menuItem.category === category) {
-        return menuItem;
-      }
-    });
-
-    //if the category is 'all' then call the function
-    //displayMenuItems again
-    if (category === "all") {
-      displayMenuItems(menu);
-      //if not call same function but pass the categoryMenu instead that
-      //already filtered
-    } else {
-      displayMenuItems(menuCategory);
-    }
-  });
-});
 
 //The map method creates an array of HTML strings
 //This needs to be joined to be inserted into the DOM
